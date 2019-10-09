@@ -1,0 +1,34 @@
+{
+  "name": "koa-app2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "init": "node_modules/.bin/sequelize init",
+    "create": "node_modules/.bin/sequelize db:create",
+    "migration": "node_modules/.bin/sequelize migration:create --name create-examples-table",
+    "migrate": "node_modules/.bin/sequelize db:migrate"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/3110160/koa-app2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/3110160/koa-app2/issues"
+  },
+  "homepage": "https://github.com/3110160/koa-app2#readme",
+  "dependencies": {
+    "awilix": "^4.2.2",
+    "awilix-koa": "^4.0.0",
+    "koa": "^2.8.2",
+    "mysql2": "^1.7.0",
+    "sequelize": "^5.19.4"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^5.5.1"
+  }
+}
