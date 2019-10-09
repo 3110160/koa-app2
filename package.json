@@ -7,8 +7,12 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "init": "node_modules/.bin/sequelize init",
     "create": "node_modules/.bin/sequelize db:create",
-    "migration": "node_modules/.bin/sequelize migration:create --name create-examples-table",
-    "migrate": "node_modules/.bin/sequelize db:migrate"
+    "migration:example": "node_modules/.bin/sequelize migration:create --name create-examples-table",
+    "migration:user": "node_modules/.bin/sequelize migration:create --name user",
+    "migrate": "node_modules/.bin/sequelize db:migrate",
+    "migrate:undo": "node_modules/.bin/sequelize db:migrate:undo",
+    "seed:init": "node_modules/.bin/sequelize db:seed:all",
+    "dev": "babel-node ./src/index.js"
   },
   "repository": {
     "type": "git",
@@ -29,6 +33,10 @@
     "sequelize": "^5.19.4"
   },
   "devDependencies": {
+    "@babel/core": "^7.6.3",
+    "@babel/node": "^7.6.3",
+    "@babel/plugin-proposal-decorators": "^7.6.0",
+    "@babel/preset-env": "^7.6.3",
     "sequelize-cli": "^5.5.1"
   }
 }
