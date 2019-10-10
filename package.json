@@ -12,7 +12,8 @@
     "migrate": "node_modules/.bin/sequelize db:migrate",
     "migrate:undo": "node_modules/.bin/sequelize db:migrate:undo",
     "seed:init": "node_modules/.bin/sequelize db:seed:all",
-    "dev": "babel-node ./src/index.js"
+    "dev": "supervisor -w ./dist -x node ./dist/index.js",
+    "gulp:watch":"gulp watch"
   },
   "repository": {
     "type": "git",
@@ -36,7 +37,11 @@
     "@babel/core": "^7.6.3",
     "@babel/node": "^7.6.3",
     "@babel/plugin-proposal-decorators": "^7.6.0",
+    "@babel/plugin-transform-modules-commonjs": "^7.6.0",
     "@babel/preset-env": "^7.6.3",
+    "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
+    "gulp-copy": "^4.0.1",
     "sequelize-cli": "^5.5.1"
   }
 }

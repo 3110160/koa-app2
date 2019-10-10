@@ -6,7 +6,7 @@ module.exports = {
       "user",
       [
         {
-          name: "John Doe",
+          name: "John Doe 2",
           created_at: new Date(),
           updated_at: new Date()
         }

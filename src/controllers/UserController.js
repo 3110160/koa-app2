@@ -8,7 +8,6 @@ class UserController {
   @GET()
   async actionSearch(ctx, next) {
     const res = await this.userService.search();
-    console.log(res);
     ctx.body = res;
     await next();
   }

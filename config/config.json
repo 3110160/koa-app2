@@ -3,10 +3,9 @@
     "username": "root",
     "password": "123456789",
     "database": "database_development",
-    "host": "localhost",
+    "host": "127.0.0.1",
     "port": 3306,
-    "dialect": "mysql",
-    "operatorsAliases": false
+    "dialect": "mysql"
   },
   "test": {
     "username": "root",
@@ -14,16 +13,14 @@
     "database": "database_test",
     "host": "127.0.0.1",
     "port": 3306,
-    "dialect": "mysql",
-    "operatorsAliases": false
+    "dialect": "mysql"
   },
   "production": {
     "username": "root",
-    "password":"123456789",
+    "password": "123456789",
     "database": "database_production",
     "host": "127.0.0.1",
     "port": 3306,
-    "dialect": "mysql",
-    "operatorsAliases": false
+    "dialect": "mysql"
   }
 }

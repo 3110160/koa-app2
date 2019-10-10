@@ -15,7 +15,8 @@ Sequelize-cli 完成 dev，test，prod 环境的配置，以及数据库创建
 // 撤销相应的迁移
 "migrate:undo": "node_modules/.bin/sequelize db:migrate:undo"
 // 初始化表
-"seed": "node_modules/.bin/sequelize db:seed:all", 
+"seed": "node_modules/.bin/sequelize db:seed:all",
+``` 
 
 ## awilix 依赖注入
 

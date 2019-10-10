@@ -17,5 +17,4 @@ container.loadModules([__dirname + "/services/*.js"], {
 app.use(scopePerRequest(container));
 app.use(loadControllers(__dirname+'/controllers/*.js'))
 
-app.listen(3000);
-module.exports = app;
+app.listen(3000,()=>console.log('listening in port 3000!...'));
