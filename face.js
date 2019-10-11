@@ -147,13 +147,98 @@ function curry(fn) {
   return function ssd() {
     args = args.concat(Array.prototype.slice.call(arguments))
     if (args.length >= arglen) {
-      return fn(...args)
+      return fn.apply(this, args)
     } else return ssd;
   }
 }
+
+function curry1(fn) {
+  // 获取除fn外的多余参数
+  var args = Array.prototype.slice.call(arguments, 1) || [];
+  return function () {
+    var curArgus = args.concat(Array.prototype.slice.call(arguments))
+    // 如果fn所需要的参数已经全部被搜集全了就调用fn
+    if (curArgus.length >= fn.length) {
+      return fn.apply(this, curArgus)
+    } else {
+      curArgus.unshift(fn);
+      // 继续收集
+      return curry1.apply(this, curArgus)
+    }
+  }
+}
+// es6 写法
+const curry2 = (fn, ...rest) => (...args) => ([...rest, ...args].length >= fn.length ? fn(...rest, ...args) : curry2(fn, ...rest, ...args))
 // test
 function cut(a, b, c) {
   console.log(a + b + c)
 }
 var curry_cut = curry(cut, 3);
 curry_cut(1)(2, 3)
+
+// pormise
+// pormise 三个状态
+const PENDING = 'PENDING';
+const RESOLVE = 'RESOLVE';
+const REJECT = 'REJECT';
+
+function Pormise1(excutor) {
+  const that = this;
+  // promise 的 当前 状态
+  this.status = PENDING;
+  // promise 的 resolve 值
+  this.value = ''
+  // promise 的 reject 错误
+  this.reason = ''
+  // then 回调函数列表
+  this.onFulfillCb = [];
+  this.onRejectCb = [];
+
+  function resolve(value) {
+    if (that.status === PENDING) {
+      if (value instanceof Pormise1) {
+        value.then(resolve, reject)
+        return;
+      }
+      // 执行 onFulfillCb 里面的回调函数
+      setTimeout(function () {
+        that.status = RESOLVE;
+        that.value = value;
+        that.onFulfillCb.forEach(cb => {
+          cb(value)
+        });
+      }, 0)
+    }
+  }
+
+  function reject(reason) {
+    if (that.status === PENDING) {
+      if (value instanceof Pormise1) {
+        value.then(resolve, reject)
+        return;
+      }
+      // 执行 onFulfillCb 里面的回调函数
+      setTimeout(function () {
+        that.status = REJECT;
+        that.reason = reason;
+        that.onRejectCb.forEach(cb => {
+          cb(reason)
+        });
+      }, 0)
+    }
+  }
+  // 执行 excutor
+  try {
+    excutor(resolve, reject)
+  } catch (e) {
+    reject(e)
+  }
+}
+
+Pormise1.prototype.then = function (onFulFill,onReject) {
+  const that = this;
+  const {status,onFulfillCb,onRejectCb} = this;
+  return new Pormise1(function(resolve,reject){
+    const 
+  })
+}
