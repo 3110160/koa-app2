@@ -13,7 +13,7 @@ function _new(fun, ...rest) {
 function Test(name) {
   this.name = name;
 }
-Test.prototype.say = function() {
+Test.prototype.say = function () {
   console.log(this.name);
 };
 let test = _new(Test, "tom");
@@ -22,7 +22,7 @@ console.log(test);
 // call
 // 将函数挂在传入的上下文中
 // 执行后再删除该函数
-Function.prototype.call2 = function(context, ...rest) {
+Function.prototype.call2 = function (context, ...rest) {
   context = context || window;
   // fun1.call2(),此时 this = fun1;
   context.fun = this;
@@ -43,7 +43,7 @@ console.log(res);
 
 // apply
 // 入参和 call 有区别
-Function.prototype.apply2 = function(context, arr) {
+Function.prototype.apply2 = function (context, arr) {
   context = context || window;
   context.fun = this;
   context.fun(...arr);
@@ -53,8 +53,7 @@ Function.prototype.apply2 = function(context, arr) {
 function fun2(c, d) {
   console.log(this.b + c + d);
 }
-let res = fun2.apply2(
-  {
+let res = fun2.apply2({
     b: 1
   },
   ["2", "ee"]
@@ -63,29 +62,29 @@ console.log(res);
 
 // bind
 // 返回一个绑定上下文的函数
-Function.prototype.bind2 = function(context, ...rest) {
+Function.prototype.bind2 = function (context, ...rest) {
   let fn = this;
   if (typeof fn !== "function") {
     throw new Error("not a function");
   }
-  let resFn = function() {
+  let resFn = function () {
     let args = [...rest, ...arguments];
     // this instanceof fBound === true时,说明返回的fBound被当做new的构造函数调用
     let ctx = this instanceof resFn ? this : context;
     return fn.apply(ctx, args);
   };
   // 维护fn的原型链
-  let temf = function() {};
+  let temf = function () {};
   temf.prototype = fn.prototype;
   resFn.prototype = new temf();
   return resFn;
 };
 
 // test
-let fun3 = function() {
+let fun3 = function () {
   console.log(this);
 };
-fun3.prototype.asy = function() {
+fun3.prototype.asy = function () {
   console.log("bind");
 };
 // 正常调用
@@ -100,7 +99,7 @@ console.log(newbind);
 function Parent(a) {
   this.a = a;
 }
-Parent.prototype.say = function() {
+Parent.prototype.say = function () {
   console.log(this.a);
 };
 
@@ -157,7 +156,7 @@ function curry(fn) {
 function curry1(fn) {
   // 获取除fn外的多余参数
   var args = Array.prototype.slice.call(arguments, 1) || [];
-  return function() {
+  return function () {
     var curArgus = args.concat(Array.prototype.slice.call(arguments));
     // 如果fn所需要的参数已经全部被搜集全了就调用fn
     if (curArgus.length >= fn.length) {
@@ -170,10 +169,9 @@ function curry1(fn) {
   };
 }
 // es6 写法
-const curry2 = (fn, ...rest) => (...args) =>
-  [...rest, ...args].length >= fn.length
-    ? fn(...rest, ...args)
-    : curry2(fn, ...rest, ...args);
+const curry2 = (fn, ...rest) => (...args) => [...rest, ...args].length >= fn.length ?
+  fn(...rest, ...args) :
+  curry2(fn, ...rest, ...args);
 // test
 function cut(a, b, c) {
   console.log(a + b + c);
@@ -181,102 +179,265 @@ function cut(a, b, c) {
 var curry_cut = curry(cut, 3);
 curry_cut(1)(2, 3);
 
-// pormise
-// pormise 三个状态
-const PENDING = "PENDING";
-const RESOLVE = "RESOLVE";
-const REJECT = "REJECT";
 
-function Pormise1(excutor) {
-  const that = this;
-  // promise 的 当前 状态
-  this.status = PENDING;
-  // promise 的 resolve 值
-  this.value = "";
-  // promise 的 reject 错误
-  this.reason = "";
-  // then 回调函数列表
-  this.onFulfillCb = [];
-  this.onRejectCb = [];
+(function (window) {
+  // pormise
+  // pormise 三个状态
+  const PENDING = "PENDING";
+  const RESOLVE = "RESOLVE";
+  const REJECT = "REJECT";
 
-  function resolve(value) {
-    if (that.status === PENDING) {
-      // 执行 onFulfillCb 里面的回调函数
-      setTimeout(function() {
-        that.status = RESOLVE;
-        that.value = value;
-        that.onFulfillCb.forEach(cb => {
-          cb(value);
-        });
-      }, 0);
+  function Promise1(excutor) {
+    const that = this;
+    // promise 的 当前 状态
+    this.status = PENDING;
+    // promise 的 resolve 值
+    this.value = "";
+    // promise 的 reject 错误
+    this.reason = "";
+    // then 回调函数列表
+    this.onFulfillCb = [];
+    this.onRejectCb = [];
+
+    function resolve(value) {
+      if (that.status === PENDING) {
+        // 如果第一次传入的resolve值是一个promise 就要先把他 then 了再resolve
+        if (value instanceof Promise1) {
+          return value.then(resolve, reject)
+        }
+        // 执行 onFulfillCb 里面的回调函数
+        setTimeout(function () {
+          that.status = RESOLVE;
+          that.value = value;
+          that.onFulfillCb.forEach(cb => {
+            cb(value);
+          });
+        }, 0);
+      }
+    }
+
+    function reject(reason) {
+      if (that.status === PENDING) {
+        // 执行 onFulfillCb 里面的回调函数
+        setTimeout(function () {
+          that.status = REJECT;
+          that.reason = reason;
+          that.onRejectCb.forEach(cb => {
+            cb(reason);
+          });
+        }, 0);
+      }
+    }
+    // 执行 excutor
+    try {
+      excutor(resolve, reject);
+    } catch (e) {
+      reject(e);
     }
   }
 
-  function reject(reason) {
-    if (that.status === PENDING) {
-      // 执行 onFulfillCb 里面的回调函数
-      setTimeout(function() {
-        that.status = REJECT;
-        that.reason = reason;
-        that.onRejectCb.forEach(cb => {
-          cb(reason);
-        });
-      }, 0);
-    }
+  Promise1.prototype.then = function (onFulFill, onReject) {
+    let promise1;
+    const {
+      status,
+      onFulfillCb,
+      onRejectCb,
+      value,
+      reason
+    } = this;
+    const isFunction = fn => typeof fn === "function";
+    onFulFill = isFunction(onFulFill) ? onFulFill : function () {};
+    onReject = isFunction(onReject) ? onReject : function () {};
+    return (promise1 = new Promise1(function (resolve, reject) {
+      const resolvePromise = function (value) {
+        try {
+          const result = onFulFill(value);
+          if (result instanceof Promise1) {
+            if (promise1 === result) throw new Error("循环引用");
+            // 如果 result是个promises 实例,就等其then后把值给resolve了
+            result.then(resolve, reject);
+          } else {
+            // 为下一个.then 所有的值
+            resolve(result);
+          }
+        } catch (e) {
+          reject(e);
+        }
+      };
+      const rejectPromise = function (reason) {
+        try {
+          const result = onReject(reason);
+          if (result instanceof Promise1) {
+            if (promise1 === result) throw new Error("循环引用");
+            result.then(resolve, reject);
+          } else {
+            // 为下一个.then 所有的值
+            reject(reason);
+          }
+        } catch (e) {
+          reject(e);
+        }
+      };
+      switch (status) {
+        case PENDING:
+          onFulfillCb.push(resolvePromise);
+          onRejectCb.push(rejectPromise);
+          break;
+        case REJECT:
+          rejectPromise(reason);
+          break;
+        case RESOLVE:
+          resolvePromise(value);
+      }
+    }));
+  };
+
+  // promise.resolve
+  Promise1.resolve = function (value) {
+    return new Promise1(function (resolve, reject) {
+      resolve(value)
+    })
   }
-  // 执行 excutor
-  try {
-    excutor(resolve, reject);
-  } catch (e) {
-    reject(e);
+
+  // promise.reject
+  Promise1.reject = function (reason) {
+    return new Promise1(function (resolve, reject) {
+      reject(reason)
+    })
   }
+
+  // promise.catch
+  Promise1.prototype.catch = function (onRejectCb) {
+    return this.then(undefined, onRejectCb)
+  }
+
+  // promise.race
+  Promise1.race = function (promises = []) {
+    return new Promise1(function (resolve, reject) {
+      promises.forEach(function (p) {
+        p.then(resolve, reject);
+      })
+    })
+  }
+
+  Promise1.all = function (promises = []) {
+    return new Promise1(function (resolve, reject) {
+      var result = [];
+      var len = promises.length;
+      promises.forEach(function (p, index) {
+        p.then(function (val) {
+          result[index] = val;
+          if (result.length === len) {
+            resolve(result)
+          }
+        }, reject)
+      })
+    })
+  }
+  window.Promise1 = Promise1;
+})(window)
+
+// test
+var promise = function () {
+  return new Promise1(function (resolve, reject) {
+    setTimeout(function () {
+      console.log('test');
+      resolve(1)
+    }, 1000)
+  })
+}
+promise().then(res => {
+  console.log(res)
+  return 2;
+}).then(res2 => {
+  console.log(res2)
+})
+
+Promise1.reject('error').then(res => {
+  console.log(res)
+}).catch((e) => {
+  console.log(e)
+})
+
+Promise1.resolve(promise()).then(res => {
+  console.log(res)
+}).catch((e) => {
+  console.log(e)
+})
+
+var promise = function () {
+  return new Promise1(function (resolve, reject) {
+    setTimeout(function () {
+      resolve(1)
+    }, 1000)
+  })
+}
+var promise2 = function () {
+  return new Promise1(function (resolve, reject) {
+    setTimeout(function () {
+      resolve(2)
+    }, 2000)
+  })
 }
 
-Pormise1.prototype.then = function(onFulFill, onReject) {
-  const { status, onFulfillCb, onRejectCb, value } = this;
-  const isFunction = fn => typeof fn === "function";
-  onFulFill = isFunction(onFulFill) ? onFulFill : function() {};
-  onReject = isFunction(onReject) ? onReject : function() {};
-  return (pormise1 = new Pormise1(function(resolve, reject) {
-    const resolvePromise = function(value) {
-      try {
-        const result = onFulFill(value);
-        if (result instanceof Pormise1) {
-          if (pormise1 === result) throw new Error("循环引用");
-          // 如果 result是个promises 实例,就等其then后把值给resolve了
-          result.then(resolve, reject);
-        } else {
-          // 为下一个.then 所有的值
-          resolve(result);
-        }
-      } catch (e) {
-        reject(e);
-      }
-    };
-    const rejectPromise = function(reason) {
-      try {
-        const result = onReject(reason);
-        if (result instanceof Pormise1) {
-          if (pormise1 === result) throw new Error("循环引用");
-          result.then(resolve, reject);
-        } else {
-          // 为下一个.then 所有的值
-          reject(reason);
-        }
-      } catch (e) {
-        reject(e);
-      }
-    };
-    switch (status) {
-      case PENDING:
-        onFulfillCb.push(resolvePromise);
-        onRejectCb.push(rejectPromise);
-        break;
-      case REJECT:
-        rejectPromise(value);
-        break;
-      case RESOLVE:
-        resolvePromise(value);
+Promise1.race([promise(), promise2()]).then(res => {
+  console.log(res)
+}).catch(e => {
+  console.log(e)
+})
+Promise1.all([promise(), promise2()]).then(res => {
+  console.log(res)
+}).catch(e => {
+  console.log(e)
+})
+
+// 节流函数 闭包加定时器
+function throttle(fn, time) {
+  var timer;
+  return function () {
+    var ctx = this;
+    var args = arguments;
+    if (timer) return;
+    timer = setTimeout(function () {
+      fn.apply(ctx, args);
+      timer = null;
+    }, time)
+  }
+}
+// test
+function consolelog(val) {
+  console.log(val);
+}
+// 1秒执行一次
+var consolelog_throttle = throttle(consolelog, 5000)
+setInterval(function () {
+  consolelog_throttle(2)
+}, 500)
+
+// 防抖函数 闭包加定时器
+function debounce(fn, time, immediate) {
+  var timer;
+  return function () {
+    var ctx = this;
+    var args = arguments;
+    // 首次执行
+    if (immediate && !timer) {
+      fn.apply(ctx, args)
+      timer = setTimeout(function () {
+        clearTimeout(timer);
+      }, time)
+    } else {
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        fn.apply(ctx, args)
+        clearTimeout(timer);
+      }, time)
     }
-  }));
-};
+  }
+}
+// test
+var scroll = function () {
+  console.log(1)
+}
+var scroll_debounce = debounce(scroll, 1000, false)
+window.onscroll = scroll_debounce;
