@@ -183,9 +183,9 @@ curry_cut(1)(2, 3);
 (function (window) {
   // pormise
   // pormise 三个状态
-  const PENDING = "PENDING";
-  const RESOLVE = "RESOLVE";
-  const REJECT = "REJECT";
+  const PENDING = Symbol.for("PENDING");
+  const RESOLVE = Symbol.for("RESOLVE");
+  const REJECT = Symbol.for("REJECT");
 
   function Promise1(excutor) {
     const that = this;
@@ -441,3 +441,31 @@ var scroll = function () {
 }
 var scroll_debounce = debounce(scroll, 1000, false)
 window.onscroll = scroll_debounce;
+
+// 浅拷贝
+function shallow(target){
+  if(typeof target==='object'){
+    var res = Array.isArray(target)?[]:{}
+    for(var key in target){
+      if(target.hasOwnProperty(key)){
+        res[key] = target[key]
+      }
+    }
+    return res;
+  }else return target;
+}
+
+// 深拷贝
+function deepCopy(target){
+  if(typeof target==='object'){
+    var res = Array.isArray(target)?[]:{}
+    for(var key in target){
+      if(target.hasOwnProperty(key)){
+        // 递归
+        res[key] = deepCopy(target[key])
+      }
+    }
+    return res;
+  }else return target;
+}
+

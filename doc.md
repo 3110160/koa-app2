@@ -256,7 +256,7 @@ end user 最终用户
 end-to-end authentication 端对端身份验证
 engine 引擎
 entity 实体
-enum (enumeration) 枚举
+enum (enumeration) 枚举 /ai lang/
 enumerators 枚举成员、枚举器
 equal 相等
 equality 相等性
