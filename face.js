@@ -443,29 +443,69 @@ var scroll_debounce = debounce(scroll, 1000, false)
 window.onscroll = scroll_debounce;
 
 // 浅拷贝
-function shallow(target){
-  if(typeof target==='object'){
-    var res = Array.isArray(target)?[]:{}
-    for(var key in target){
-      if(target.hasOwnProperty(key)){
+function shallow(target) {
+  if (typeof target === 'object') {
+    var res = Array.isArray(target) ? [] : {}
+    for (var key in target) {
+      if (target.hasOwnProperty(key)) {
         res[key] = target[key]
       }
     }
     return res;
-  }else return target;
+  } else return target;
 }
 
 // 深拷贝
-function deepCopy(target){
-  if(typeof target==='object'){
-    var res = Array.isArray(target)?[]:{}
-    for(var key in target){
-      if(target.hasOwnProperty(key)){
+function deepCopy(target) {
+  if (typeof target === 'object') {
+    var res = Array.isArray(target) ? [] : {}
+    for (var key in target) {
+      if (target.hasOwnProperty(key)) {
         // 递归
         res[key] = deepCopy(target[key])
       }
     }
     return res;
-  }else return target;
+  } else return target;
 }
 
+// AOP 面向切面编程 实现 before前置通知
+// 在执行某个函数时先去执行 before()
+
+Function.prototype._before = function (fn) {
+  // 此处this即调用before的函数
+  var that = this;
+  return function () {
+    fn.apply(this, arguments)
+    return that.apply(this, arguments)
+  }
+}
+
+// test
+function a(b) {
+  return b;
+}
+var _a = a._before(function (v) {
+  console.log(v,'before')
+})
+_a(2);
+
+// after 后置通知
+Function.prototype._after = function (fn) {
+  var that = this;
+  return function(){
+    var res = that.apply(this,arguments)
+    fn.apply(this,arguments)
+    return res;
+  }
+}
+
+// test
+function a(b) {
+  console.log('fn a')
+  return b;
+}
+var _a = a._after(function (v) {
+  console.log(v,'after')
+})
+_a(2);
